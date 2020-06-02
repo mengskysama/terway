@@ -211,13 +211,15 @@ func (f *eniIPFactory) popResult() (ip *types.ENIIP, err error) {
 	}
 	f.Lock()
 	defer f.Unlock()
-	for _, eni := range f.enis {
-		if eni.ENI != nil && eni.MAC == result.Eni.MAC {
-			eni.pending--
-			eni.lock.Lock()
-			eni.ips = append(eni.ips, result)
-			eni.lock.Unlock()
-			return result.ENIIP, nil
+	if result.Eni != nil {
+		for _, eni := range f.enis {
+			if eni.ENI != nil && eni.MAC == result.Eni.MAC {
+				eni.pending--
+				eni.lock.Lock()
+				eni.ips = append(eni.ips, result)
+				eni.lock.Unlock()
+				return result.ENIIP, nil
+			}
 		}
 	}
 	return nil, errors.Errorf("unexpected eni ip allocated: %v", result)
